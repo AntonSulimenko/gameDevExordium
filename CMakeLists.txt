@@ -3,11 +3,14 @@ cmake_minimum_required(VERSION 2.6)
 #Name your project here
 project(Exordium)
 
-include_directories($ENV{OGRE_HOME}/include)
-include_directories($ENV{OGRE_HOME}/include/OIS)
-include_directories($ENV{OGRE_HOME}/include/OGRE)
-include_directories($ENV{OGRE_HOME}/include/OGRE/Overlay)
-include_directories($ENV{OGRE_HOME}/boost)
+set(OGRE_PATH $ENV{OGRE_HOME} CACHE PATH "OGRE DIR")
+#set(OGRE_PATH $ENV{OGRE_HOME} CACHE PATH "OGRE DIR")
+
+include_directories(${OGRE_PATH}/include)
+include_directories(${OGRE_PATH}/include/OIS)
+include_directories(${OGRE_PATH}/include/OGRE)
+include_directories(${OGRE_PATH}/include/OGRE/Overlay)
+include_directories(${OGRE_PATH}/boost)
 
 set(EXORDIUM_SOURCES
 	src/main.cpp
@@ -18,8 +21,8 @@ set(EXORDIUM_HEADERS
 	src/ExordiumApplication.h
 )
 
-link_directories($ENV{OGRE_HOME}/lib)
-link_directories($ENV{OGRE_HOME}/boost/lib)
+link_directories(${OGRE_PATH}/lib)
+link_directories(${OGRE_PATH}/boost/lib)
 
 IF(WIN32)
 	SET(GUI_TYPE WIN32)
@@ -51,3 +54,7 @@ add_custom_command(TARGET Exordium POST_BUILD        # Adds a post-build event t
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
         "${PROJECT_SOURCE_DIR}/ogrecfg/plugins.cfg"      # <--this is in-file
         $<TARGET_FILE_DIR:Exordium>)                   # <--this is out-file path
+		
+add_custom_command(TARGET Exordium POST_BUILD
+		   COMMAND ${CMAKE_COMMAND} -E copy_directory
+			   ${OGRE_PATH}/bin/$(Configuration) $<TARGET_FILE_DIR:Exordium>)
