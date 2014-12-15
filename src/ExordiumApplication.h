@@ -1,30 +1,24 @@
 #ifndef __ExordiumApplication_h_
 #define __ExordiumApplication_h_
 
-//#include <OgreCamera.h>
-//#include <OgreEntity.h>
-//#include <OgreLogManager.h>
 #include <OgreRoot.h>
-//#include <OgreViewport.h>
-//#include <OgreSceneManager.h>
-//#include <OgreRenderWindow.h>
-//#include <OgreConfigFile.h>
+#include <OgreCamera.h>
+#include <OgreSceneManager.h>
+#include <OgreRenderWindow.h>
 
 class ExordiumApplication
 {
 public:
-	ExordiumApplication();
-	virtual ~ExordiumApplication();
-
-	void go();
-private:
-	void destroyScene();
-
-private:
+	ExordiumApplication(void);
+	virtual ~ExordiumApplication(void);
+	bool go(void);
+protected:
+	Ogre::Root *mRoot;
+	Ogre::Camera* mCamera;
+	Ogre::SceneManager* mSceneMgr;
+	Ogre::RenderWindow* mWindow;
 	Ogre::String mResourcesCfg;
 	Ogre::String mPluginsCfg;
-
-	Ogre::Root* mRoot;
 };
 
 //---------------------------------------------------------------------------

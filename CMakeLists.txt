@@ -12,13 +12,9 @@ include_directories(${OGRE_PATH}/include/OGRE)
 include_directories(${OGRE_PATH}/include/OGRE/Overlay)
 include_directories(${OGRE_PATH}/boost)
 
-set(EXORDIUM_SOURCES
-	src/main.cpp
-	src/ExordiumApplication.cpp
-)
-
-set(EXORDIUM_HEADERS
-	src/ExordiumApplication.h
+file(GLOB EXORDIUM_SOURCES
+	src/*.cpp
+	src/*.h
 )
 
 link_directories(${OGRE_PATH}/lib)
@@ -32,7 +28,7 @@ IF (APPLE)
 	SET(GUI_TYPE MACOSX_BUNDLE)
 ENDIF (APPLE)
 
-add_executable(Exordium ${GUI_TYPE} ${EXORDIUM_SOURCES} ${EXORDIUM_HEADERS})
+add_executable(Exordium ${GUI_TYPE} ${EXORDIUM_SOURCES})
 
 # find_library(OGREMAIN_DEBUG_LIB OgreMain_d.lib)
 
@@ -45,15 +41,12 @@ target_link_libraries(Exordium
     optimized OgreOverlay.lib
 )
 
-file(GLOB OGRE_CONFIG_FILES
-  "ogrecfg/*.cfg"
-)
-file(COPY ${OGRE_CONFIG_FILES} DESTINATION myDestination)
+file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
 
-add_custom_command(TARGET Exordium POST_BUILD        # Adds a post-build event to Exordium
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
-        "${PROJECT_SOURCE_DIR}/ogrecfg/plugins.cfg"      # <--this is in-file
-        $<TARGET_FILE_DIR:Exordium>)                   # <--this is out-file path
+configure_file(${PROJECT_SOURCE_DIR}/ogrecfg/plugins_d.cfg
+			${CMAKE_BINARY_DIR}/Debug/plugins_d.cfg COPY_ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/ogrecfg/plugins.cfg
+			${CMAKE_BINARY_DIR}/Release/plugins.cfg COPY_ONLY)
 		
 add_custom_command(TARGET Exordium POST_BUILD
 		   COMMAND ${CMAKE_COMMAND} -E copy_directory
