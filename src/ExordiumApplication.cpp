@@ -14,7 +14,6 @@ ExordiumApplication::~ExordiumApplication(void)
 {
 }
 
-
 bool ExordiumApplication::go(void)
 {
    bool result = true;
