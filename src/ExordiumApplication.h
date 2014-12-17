@@ -1,10 +1,7 @@
 #ifndef __ExordiumApplication_h_
 #define __ExordiumApplication_h_
 
-#include <OgreRoot.h>
-#include <OgreCamera.h>
-#include <OgreSceneManager.h>
-#include <OgreRenderWindow.h>
+#include "Ogre.h"
 
 class ExordiumApplication
 {

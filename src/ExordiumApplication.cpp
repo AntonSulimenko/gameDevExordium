@@ -1,87 +1,91 @@
 #include "ExordiumApplication.h"
 
-#include <OgreLogManager.h>
-#include <OgreViewport.h>
-#include <OgreConfigFile.h>
-#include <OgreEntity.h>
-#include <OgreWindowEventUtilities.h>
-
-//-------------------------------------------------------------------------------------
 ExordiumApplication::ExordiumApplication(void)
-	: mRoot(0),
-	mCamera(0),
-	mSceneMgr(0),
-	mWindow(0),
-	mResourcesCfg(Ogre::StringUtil::BLANK),
-	mPluginsCfg(Ogre::StringUtil::BLANK)
+   : mRoot(0),
+   mCamera(0),
+   mSceneMgr(0),
+   mWindow(0),
+   mResourcesCfg(Ogre::StringUtil::BLANK),
+   mPluginsCfg(Ogre::StringUtil::BLANK)
 {
 }
-//-------------------------------------------------------------------------------------
+
 ExordiumApplication::~ExordiumApplication(void)
 {
-	delete mRoot;
 }
 
 bool ExordiumApplication::go(void)
 {
-	mRoot = new Ogre::Root();
+   bool result = true;
+   mRoot = new Ogre::Root();
 
-	//-------------------------------------------------------------------------------------
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../resources/materials/programs", "FileSystem", "General");
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../resources/materials/scripts", "FileSystem", "General");
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../resources/materials/textures", "FileSystem", "General");
-	Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../resources/models", "FileSystem", "General");
-	//-------------------------------------------------------------------------------------
-	if (mRoot->restoreConfig() && mRoot->showConfigDialog())
-	{
-		mWindow = mRoot->initialise(true, "Exordium Window");
-	}
-	else
-	{
-		return false;
-	}
-	//-------------------------------------------------------------------------------------
-	mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
-	//-------------------------------------------------------------------------------------
-	mCamera = mSceneMgr->createCamera("PlayerCam");
+   Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../resources/materials/programs", "FileSystem", "General");
+   Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../resources/materials/scripts", "FileSystem", "General");
+   Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../resources/materials/textures", "FileSystem", "General");
+   Ogre::ResourceGroupManager::getSingleton().addResourceLocation("../resources/models", "FileSystem", "General");
 
-	mCamera->setPosition(Ogre::Vector3(0, 0, 80));
-	mCamera->lookAt(Ogre::Vector3(0, 0, -300));
-	mCamera->setNearClipDistance(5);
+   if (!mRoot->restoreConfig())
+   {
+      result = mRoot->showConfigDialog();
+   }
 
-	//-------------------------------------------------------------------------------------
-	Ogre::Viewport* vp = mWindow->addViewport(mCamera);
-	vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
+   if (result)
+   {
+      mWindow = mRoot->initialise(true, "Exordium Window");
+      mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
+      mCamera = mSceneMgr->createCamera("PlayerCam");
 
-	mCamera->setAspectRatio(
-		Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
-	//-------------------------------------------------------------------------------------
-	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
-	//-------------------------------------------------------------------------------------
-	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-	//-------------------------------------------------------------------------------------
-	Ogre::Entity* ogreHead = mSceneMgr->createEntity("Head", "ogrehead.mesh");
+      mCamera->setPosition(Ogre::Vector3(0, 10, 200));
+      mCamera->setNearClipDistance(50);
 
-	Ogre::SceneNode* headNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-	headNode->attachObject(ogreHead);
+      Ogre::Viewport* vp = mWindow->addViewport(mCamera);
+      vp->setBackgroundColour(Ogre::ColourValue(0.01f, 0, 0));
 
-	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
+      Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
-	Ogre::Light* light = mSceneMgr->createLight("MainLight");
-	light->setPosition(20, 80, 50);
-	//-------------------------------------------------------------------------------------
+      Ogre::Entity* ogreHead = mSceneMgr->createEntity("Head", "ogrehead.mesh");
+      Ogre::SceneNode* headNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
-	while (true)
-	{
-		Ogre::WindowEventUtilities::messagePump();
+      mCamera->lookAt(headNode->getPosition());
 
-		if (mWindow->isClosed())
-		{
-			return false;
-		}
+      headNode->attachObject(ogreHead);
 
-		if (!mRoot->renderOneFrame()) return false;
-	}
-	return true;
+      mSceneMgr->setAmbientLight(Ogre::ColourValue(0.1f, 0.0f, 0.0f));
+
+      {
+         Ogre::Light* light = mSceneMgr->createLight("MainLight");
+         light->setSpecularColour(Ogre::ColourValue(1.f, 1.f, 1.f));
+         light->setDiffuseColour(Ogre::ColourValue(1.0f, 0.75f, 0.5f));
+         light->setPosition(-100, 200, 50);
+         Ogre::SceneNode* lightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+         lightNode->attachObject(light);
+      }
+
+      {
+         Ogre::Light* light = mSceneMgr->createLight("BackLight");
+         light->setSpecularColour(Ogre::ColourValue(1.f, 1.f, 1.f));
+         light->setDiffuseColour(Ogre::ColourValue(0.9f, 0.9f, 1.0f));
+         light->setPosition(50, 50, -50);
+         Ogre::SceneNode* lightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+         lightNode->attachObject(light);
+      }
+
+      while (result)
+      {
+         Ogre::WindowEventUtilities::messagePump();
+
+         if (!mRoot->renderOneFrame())
+         {
+            result = false;
+         }
+
+         if (mWindow->isClosed())
+         {
+            result = false;
+         }
+      }
+   }
+
+   delete mRoot;
+   return result;
 }
-
