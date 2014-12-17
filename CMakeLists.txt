@@ -30,7 +30,7 @@ ENDIF (APPLE)
 
 add_executable(Exordium ${GUI_TYPE} ${EXORDIUM_SOURCES})
 
-# find_library(OGREMAIN_DEBUG_LIB OgreMain_d.lib)
+# AAA find_library(OGREMAIN_DEBUG_LIB OgreMain_d.lib)
 
 target_link_libraries(Exordium
     debug OgreMain_d.lib
@@ -51,3 +51,5 @@ configure_file(${PROJECT_SOURCE_DIR}/ogrecfg/plugins.cfg
 add_custom_command(TARGET Exordium POST_BUILD
 		   COMMAND ${CMAKE_COMMAND} -E copy_directory
 			   ${OGRE_PATH}/bin/$(Configuration) $<TARGET_FILE_DIR:Exordium>)
+
+			   
